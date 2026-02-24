@@ -26,13 +26,13 @@ function updateQR() {
   const qrBox = document.getElementById("qrBox");
   qrBox.innerHTML = "";
 
-  // ✅ QR content = venue location name (as you requested)
+  // QR content = venue location name
   const venueQRText = "Joypurhat Govt. College";
 
   new QRCode(qrBox, {
     text: venueQRText,
-    width: 94,
-    height: 94
+    width: 98,
+    height: 98
   });
 }
 
@@ -42,7 +42,6 @@ function updatePreview() {
   pRoll.textContent = safeText(rollEl.value);
   pCategory.textContent = safeText(categoryEl.value);
   pMobile.textContent = safeText(mobileEl.value);
-
   updateQR();
 }
 
@@ -89,7 +88,6 @@ downloadBtn.addEventListener("click", async () => {
 
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-
   const margin = 10;
   const maxW = pageWidth - margin * 2;
 
@@ -109,16 +107,16 @@ downloadBtn.addEventListener("click", async () => {
 
   pdf.addImage(imgData, "PNG", x, y, w, h);
 
-  // ✅ open in new tab (avoids file:/// issues)
+  // open in new tab
   const blobUrl = pdf.output("bloburl");
   window.open(blobUrl, "_blank");
 
-  // ✅ also download
+  // download
   const filenameRoll = rollEl.value.trim().replace(/\s+/g, "_");
   pdf.save(`JSO_Admit_${filenameRoll}.pdf`);
 });
 
-// auto preview on typing
+// live preview
 [nameEl, institutionEl, rollEl, categoryEl, mobileEl].forEach((el) => {
   el.addEventListener("input", () => updatePreview());
 });
