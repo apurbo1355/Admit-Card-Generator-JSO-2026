@@ -3,65 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JSO 2026 Admit Card</title>
+  <title>Admit Card Generator — JSO 2026</title>
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- PDF + Canvas -->
+  <!-- libs -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
-  <!-- QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
-  <div class="page">
+  <div class="bg"></div>
 
-    <header class="topbar">
-      <div class="topbar-inner">
-        <div class="brand-left">
-          <!-- ✅ match your file name -->
-          <img class="brand-logo" src="assets/jso-logo.png.png" alt="JSO Logo" onerror="this.style.display='none'">
-          <div>
-            <h1>Joypurhat Science Olympiad 2026</h1>
-            <p>Admit Card Generator Platform</p>
-          </div>
+  <div class="shell">
+    <!-- header -->
+    <header class="hero">
+      <div class="hero-left">
+        <div class="hero-logo">
+          <img src="assets/jso-logo.png.png" alt="JSO logo" onerror="this.style.display='none'">
         </div>
+        <div class="hero-text">
+          <h1>Joypurhat Science Olympiad 2026</h1>
+          <p>Admit Card Generator Platform</p>
+        </div>
+      </div>
 
-        <div class="event-meta">
-          <div><span>Date:</span> <b>5th March 2026</b></div>
-          <div><span>Time:</span> <b>10:00 AM</b></div>
-          <div><span>Venue:</span> <b>Joypurhat Govt. College</b></div>
-        </div>
+      <div class="hero-meta">
+        <div><span>Date:</span> <b>5th March 2026</b></div>
+        <div><span>Time:</span> <b>10:00 AM</b></div>
+        <div><span>Venue:</span> <b>Joypurhat Govt. College</b></div>
       </div>
     </header>
 
+    <!-- main grid -->
     <main class="grid">
-
-      <!-- FORM -->
-      <section class="panel form-panel">
-        <h2>Enter Participant Details</h2>
-        <p class="sub">Fields marked with <b>*</b> are mandatory.</p>
+      <!-- form -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Enter Participant Details</h2>
+          <p>Fields marked with <b>*</b> are mandatory.</p>
+        </div>
 
         <form id="admitForm" class="form">
-
-          <div class="field">
+          <div class="fblock">
             <label for="name">Full Name <span>*</span></label>
             <input id="name" type="text" placeholder="e.g., Rahim Uddin" required />
           </div>
 
-          <div class="field">
+          <div class="fblock soft-a">
             <label for="institution">Institution <span>*</span></label>
             <input id="institution" type="text" placeholder="e.g., Joypurhat Govt. College" required />
           </div>
 
-          <div class="field">
+          <div class="fblock soft-b">
             <label for="roll">Roll / ID <span>*</span></label>
             <input id="roll" type="text" placeholder="e.g., JSO26-0123" required />
           </div>
 
-          <div class="field">
+          <div class="fblock soft-c">
             <label for="category">Category <span>*</span></label>
             <select id="category" required>
               <option value="" selected disabled>Select your group</option>
@@ -70,111 +70,112 @@
             </select>
           </div>
 
-          <div class="field">
+          <div class="fblock">
             <label for="mobile">Mobile No. <span>*</span></label>
             <input id="mobile" type="tel" placeholder="e.g., 01XXXXXXXXX" required />
           </div>
 
-          <div class="field">
+          <div class="fblock">
             <label for="photo">Upload Your Photo <span class="opt">(Optional but recommended)</span></label>
             <input id="photo" type="file" accept="image/*" />
           </div>
 
-          <div class="actions">
-            <button type="button" id="previewBtn" class="btn secondary">Preview Admit Card</button>
-            <button type="button" id="downloadBtn" class="btn primary">Download PDF</button>
+          <div class="btnrow">
+            <button type="button" id="previewBtn" class="btn btn-green">Preview Admit Card</button>
+            <button type="button" id="downloadBtn" class="btn btn-blue">Download PDF (A4)</button>
           </div>
 
-          <div class="form-note">
+          <div class="note">
             After download, if your browser can’t open the file directly, open it from the <b>Downloads</b> folder.
           </div>
         </form>
       </section>
 
-      <!-- PREVIEW -->
-      <section class="panel preview-panel">
-        <h2>Preview</h2>
-        <p class="sub">Check details carefully before downloading.</p>
+      <!-- preview -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Preview</h2>
+          <p>Check details carefully before downloading.</p>
+        </div>
 
-        <div id="admitCard" class="admit">
+        <!-- THIS element is exported to PDF -->
+        <div class="preview-wrap">
+          <div id="admitCard" class="admit">
+            <div class="a-head">
+              <div class="a-brand">
+                <div class="a-logo">
+                  <img src="assets/jso-logo.png.png" alt="JSO logo" onerror="this.style.display='none'">
+                </div>
+                <div class="a-title">
+                  <div class="a-title-line">Joypurhat Science Olympiad 2026</div>
+                  <div class="a-badges">
+                    <span class="badge">ADMIT CARD</span>
+                    <span class="badge badge-soft">JSO 2026</span>
+                  </div>
+                </div>
+              </div>
 
-          <!-- ✅ Header -->
-          <div class="admit-header">
-            <div class="admit-brand">
-              <!-- ✅ match your file name -->
-              <img class="admit-logo" src="assets/jso-logo.png.png" alt="JSO Logo" onerror="this.style.display='none'">
+              <div class="a-right">
+                <div class="a-qr">
+                  <div id="qrBox"></div>
+                  <div class="qr-cap">Venue QR</div>
+                </div>
 
-              <div class="admit-title-wrap">
-                <div class="admit-title-one">Joypurhat Science Olympiad 2026</div>
-                <div class="pill-row">
-                  <span class="pill">ADMIT CARD</span>
-                  <span class="pill soft">JSO 2026</span>
+                <div class="a-photo">
+                  <img id="photoPreview" alt="photo" />
+                  <div id="photoFallback" class="a-photo-fallback">PHOTO</div>
                 </div>
               </div>
             </div>
 
-            <div class="photo-frame">
-              <img id="photoPreview" alt="Student Photo" />
-              <div id="photoFallback" class="photo-fallback">PHOTO</div>
-            </div>
-          </div>
+            <div class="a-sep"></div>
 
-          <div class="divider"></div>
-
-          <!-- ✅ Small strip to reduce empty space -->
-          <div class="strip">
-            <span class="strip-label">Participant Info</span>
-            <span class="strip-value">Verify all details before download.</span>
-          </div>
-
-          <div class="admit-body">
-            <div class="info-grid">
-              <div class="info-row"><span>Full Name</span><b id="pName">—</b></div>
-              <div class="info-row"><span>Institution</span><b id="pInstitution">—</b></div>
-              <div class="info-row"><span>Roll / ID</span><b id="pRoll">—</b></div>
-              <div class="info-row"><span>Category</span><b id="pCategory">—</b></div>
-              <div class="info-row"><span>Mobile No.</span><b id="pMobile">—</b></div>
+            <div class="a-strip">
+              <div class="strip-left">Participant Info</div>
+              <div class="strip-right">Verify all details before download.</div>
             </div>
 
-            <div>
-              <div class="event-box">
-                <div class="event-title">Event Information</div>
-                <div class="event-line"><span>Date:</span> <b>5th March 2026</b></div>
-                <div class="event-line"><span>Time:</span> <b>10:00 AM</b></div>
-                <div class="event-line"><span>Venue:</span> <b>Joypurhat Govt. College</b></div>
+            <div class="a-body">
+              <div class="box info">
+                <div class="row"><span>Full Name</span><b id="pName">—</b></div>
+                <div class="row"><span>Institution</span><b id="pInstitution">—</b></div>
+                <div class="row"><span>Roll / ID</span><b id="pRoll">—</b></div>
+                <div class="row"><span>Category</span><b id="pCategory">—</b></div>
+                <div class="row"><span>Mobile No.</span><b id="pMobile">—</b></div>
               </div>
 
-              <div class="inst-box">
-                <div class="inst-title">Instructions</div>
-                <ul class="inst-list">
-                  <li>Calculator is allowed.</li>
-                  <li>Mobile and other electronic devices are not allowed.</li>
-                  <li>Please be present at the venue 30 minutes before.</li>
-                  <li>Bring this admit card and student ID card as proof.</li>
-                </ul>
+              <div class="rightcol">
+                <div class="box event">
+                  <div class="boxtitle">Event Information</div>
+                  <div class="eline"><span>Date:</span> <b>5th March 2026</b></div>
+                  <div class="eline"><span>Time:</span> <b>10:00 AM</b></div>
+                  <div class="eline"><span>Venue:</span> <b>Joypurhat Govt. College</b></div>
+                </div>
+
+                <div class="box inst">
+                  <div class="boxtitle">Instructions</div>
+                  <ul>
+                    <li>Calculator is allowed.</li>
+                    <li>Mobile and other electronic devices are not allowed.</li>
+                    <li>Please be present at the venue 30 minutes before.</li>
+                    <li>Bring this admit card and student ID card as proof.</li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- ✅ Footer with QR on right (no overlap) -->
-          <div class="admit-footer">
-            <div class="footer-left">
-              <div class="stamp">JSO 2026</div>
-              <div class="small">Organizing Committee — Joypurhat Science Olympiad 2026</div>
-              <div class="small subtle">This admit card is computer generated.</div>
-            </div>
-
-            <div class="footer-qr">
-              <div id="qrBox"></div>
-              <div class="qr-label">Venue QR</div>
+            <div class="a-foot">
+              <div class="foot-left">
+                <div class="stamp">JSO 2026</div>
+                <div class="tiny">Organizing Committee: Joypurhat Science Olympiad 2026</div>
+              </div>
+              <div class="tiny">This admit card is computer generated.</div>
             </div>
           </div>
-
         </div>
+
       </section>
-
     </main>
-
   </div>
 
   <script src="script.js"></script>

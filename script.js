@@ -17,26 +17,26 @@ const photoFallback = document.getElementById("photoFallback");
 const previewBtn = document.getElementById("previewBtn");
 const downloadBtn = document.getElementById("downloadBtn");
 
-function safeText(v) {
+function safeText(v){
   const s = (v || "").trim();
   return s.length ? s : "—";
 }
 
-function updateQR() {
+function updateQR(){
   const qrBox = document.getElementById("qrBox");
   qrBox.innerHTML = "";
 
-  // QR content = venue location name
-  const venueQRText = "Joypurhat Govt. College";
+  // Put venue name (or google maps link) inside QR
+  const venueText = "Joypurhat Govt. College";
 
   new QRCode(qrBox, {
-    text: venueQRText,
+    text: venueText,
     width: 98,
     height: 98
   });
 }
 
-function updatePreview() {
+function updatePreview(){
   pName.textContent = safeText(nameEl.value);
   pInstitution.textContent = safeText(institutionEl.value);
   pRoll.textContent = safeText(rollEl.value);
@@ -45,7 +45,7 @@ function updatePreview() {
   updateQR();
 }
 
-function validateRequired() {
+function validateRequired(){
   if (!nameEl.value.trim()) return "Full Name is required.";
   if (!institutionEl.value.trim()) return "Institution is required.";
   if (!rollEl.value.trim()) return "Roll/ID is required.";
@@ -56,7 +56,11 @@ function validateRequired() {
 
 photoEl.addEventListener("change", () => {
   const file = photoEl.files && photoEl.files[0];
-  if (!file) return;
+  if (!file) {
+    photoPreview.style.display = "none";
+    photoFallback.style.display = "grid";
+    return;
+  }
 
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -73,6 +77,13 @@ previewBtn.addEventListener("click", () => {
   updatePreview();
 });
 
+/**
+ * ✅ PDF Export Rules (A4 Landscape)
+ * - temporarily apply export-a4 width (wide like A4)
+ * - capture with html2canvas
+ * - put into jsPDF A4 landscape with tiny margins
+ * - fit to page to cover almost full A4
+ */
 downloadBtn.addEventListener("click", async () => {
   const err = validateRequired();
   if (err) return alert(err);
@@ -80,45 +91,61 @@ downloadBtn.addEventListener("click", async () => {
   updatePreview();
 
   const card = document.getElementById("admitCard");
-  const canvas = await html2canvas(card, { scale: 2 });
+
+  // Apply wide export layout
+  card.classList.add("export-a4");
+  await new Promise(r => setTimeout(r, 80)); // allow CSS apply
+
+  const canvas = await html2canvas(card, {
+    scale: 3,
+    backgroundColor: "#ffffff",
+    useCORS: true
+  });
+
+  // Restore normal
+  card.classList.remove("export-a4");
+
   const imgData = canvas.toDataURL("image/png");
 
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p", "mm", "a4");
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  const maxW = pageWidth - margin * 2;
+  // A4 landscape: 297 x 210 mm
+  const pdf = new jsPDF("l", "mm", "a4");
+  const pageW = 297;
+  const pageH = 210;
 
-  const imgProps = pdf.getImageProperties(imgData);
-  const imgRatio = imgProps.width / imgProps.height;
+  // Tiny printer-safe margin
+  const margin = 4;
+  const maxW = pageW - margin * 2;
+  const maxH = pageH - margin * 2;
 
-  let w = maxW;
-  let h = w / imgRatio;
+  const imgRatio = canvas.width / canvas.height;
 
-  if (h > pageHeight - margin * 2) {
-    h = pageHeight - margin * 2;
-    w = h * imgRatio;
+  // Fit-to-page (max coverage)
+  let drawW = maxW;
+  let drawH = drawW / imgRatio;
+  if (drawH > maxH){
+    drawH = maxH;
+    drawW = drawH * imgRatio;
   }
 
-  const x = (pageWidth - w) / 2;
-  const y = 12;
+  const x = (pageW - drawW) / 2;
+  const y = (pageH - drawH) / 2;
 
-  pdf.addImage(imgData, "PNG", x, y, w, h);
+  pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
 
-  // open in new tab
+  // Open + Download
   const blobUrl = pdf.output("bloburl");
   window.open(blobUrl, "_blank");
 
-  // download
   const filenameRoll = rollEl.value.trim().replace(/\s+/g, "_");
-  pdf.save(`JSO_Admit_${filenameRoll}.pdf`);
+  pdf.save(`JSO_Admit_${filenameRoll}_A4.pdf`);
 });
 
-// live preview
-[nameEl, institutionEl, rollEl, categoryEl, mobileEl].forEach((el) => {
-  el.addEventListener("input", () => updatePreview());
+// Live preview update while typing
+[nameEl, institutionEl, rollEl, categoryEl, mobileEl].forEach(el => {
+  el.addEventListener("input", updatePreview);
 });
 
+updateQR();
 updatePreview();
