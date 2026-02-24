@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSO 2026 Admit Card</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- PDF + Canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <!-- QR Code -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+  <div class="page">
+
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-left">
+          <img class="brand-logo" src="assets/jso-logo.png" alt="JSO Logo" onerror="this.style.display='none'">
+          <div>
+            <h1>Joypurhat Science Olympiad 2026</h1>
+            <p>Admit Card Generator Platform</p>
+          </div>
+        </div>
+
+        <div class="event-meta">
+          <div><span>Date:</span> <b>5th March 2026</b></div>
+          <div><span>Time:</span> <b>10:00 AM</b></div>
+          <div><span>Venue:</span> <b>Joypurhat Govt. College</b></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+
+      <!-- FORM -->
+      <section class="panel form-panel">
+        <h2>Enter Participant Details</h2>
+        <p class="sub">Fields marked with <b>*</b> are mandatory.</p>
+
+        <form id="admitForm" class="form">
+
+          <div class="field">
+            <label for="name">Full Name <span>*</span></label>
+            <input id="name" type="text" placeholder="e.g., Rahim Uddin" required />
+            <small class="hint">Write your full name (as used in registration).</small>
+          </div>
+
+          <div class="field">
+            <label for="institution">Institution <span>*</span></label>
+            <input id="institution" type="text" placeholder="e.g., Joypurhat Govt. College" required />
+          </div>
+
+          <div class="field">
+            <label for="roll">Roll / ID <span>*</span></label>
+            <input id="roll" type="text" placeholder="e.g., JSO26-0123" required />
+          </div>
+
+          <div class="field">
+            <label for="category">Category <span>*</span></label>
+            <select id="category" required>
+              <option value="" selected disabled>Select your group</option>
+              <option value="Group A (SSC)">Group A (SSC)</option>
+              <option value="Group B (HSC)">Group B (HSC)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="mobile">Mobile No. <span>*</span></label>
+            <input id="mobile" type="tel" placeholder="e.g., 01XXXXXXXXX" required />
+          </div>
+
+          <div class="field">
+            <label for="photo">Upload Your Photo <span class="opt">(Optional but recommended)</span></label>
+            <input id="photo" type="file" accept="image/*" />
+            <small class="hint">Clear face photo is recommended.</small>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="previewBtn" class="btn secondary">Preview Admit Card</button>
+            <button type="button" id="downloadBtn" class="btn primary">Download PDF</button>
+          </div>
+
+          <div class="form-note">
+            After download, if your browser can’t open the file directly, open it from the <b>Downloads</b> folder.
+          </div>
+        </form>
+      </section>
+
+      <!-- PREVIEW -->
+      <section class="panel preview-panel">
+        <h2>Preview</h2>
+        <p class="sub">Check details carefully before downloading.</p>
+
+        <div id="admitCard" class="admit">
+
+          <div class="admit-header">
+            <div class="admit-brand">
+              <img class="admit-logo" src="assets/jso-logo.png" alt="JSO Logo" onerror="this.style.display='none'">
+
+              <!-- ✅ one line title -->
+              <div class="admit-title-one">
+                Joypurhat Science Olympiad 2026
+                <span class="pill">ADMIT CARD</span>
+              </div>
+            </div>
+
+            <div class="photo-frame">
+              <img id="photoPreview" alt="Student Photo" />
+              <div id="photoFallback" class="photo-fallback">PHOTO</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="admit-body">
+            <div class="info-grid">
+              <div class="info-row"><span>Full Name</span><b id="pName">—</b></div>
+              <div class="info-row"><span>Institution</span><b id="pInstitution">—</b></div>
+              <div class="info-row"><span>Roll / ID</span><b id="pRoll">—</b></div>
+              <div class="info-row"><span>Category</span><b id="pCategory">—</b></div>
+              <div class="info-row"><span>Mobile No.</span><b id="pMobile">—</b></div>
+            </div>
+
+            <div>
+              <div class="event-box">
+                <div class="event-title">Event Information</div>
+                <div class="event-line"><span>Date:</span> <b>5th March 2026</b></div>
+                <div class="event-line"><span>Time:</span> <b>10:00 AM</b></div>
+                <div class="event-line"><span>Venue:</span> <b>Joypurhat Govt. College</b></div>
+              </div>
+
+              <div class="inst-box">
+                <div class="inst-title">Instructions</div>
+                <ul class="inst-list">
+                  <li>Calculator is allowed.</li>
+                  <li>Mobile and other electronic devices are not allowed.</li>
+                  <li>Please be present at the venue 30 minutes before.</li>
+                  <li>Bring this admit card and student ID card as proof.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="admit-footer">
+            <div class="footer-left">
+              <div class="stamp">JSO 2026</div>
+              <div class="small">Organizing Committee — Joypurhat Science Olympiad 2026</div>
+            </div>
+            <div class="footer-right small">This admit card is computer generated.</div>
+          </div>
+
+          <!-- ✅ QR moved to bottom-right corner -->
+          <div class="qr-corner">
+            <div id="qrBox"></div>
+            <div class="qr-label">Venue QR</div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
