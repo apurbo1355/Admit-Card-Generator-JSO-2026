@@ -1,151 +1,140 @@
-const nameEl = document.getElementById("name");
-const institutionEl = document.getElementById("institution");
-const rollEl = document.getElementById("roll");
-const categoryEl = document.getElementById("category");
-const mobileEl = document.getElementById("mobile");
-const photoEl = document.getElementById("photo");
+const $ = (id) => document.getElementById(id);
 
-const pName = document.getElementById("pName");
-const pInstitution = document.getElementById("pInstitution");
-const pRoll = document.getElementById("pRoll");
-const pCategory = document.getElementById("pCategory");
-const pMobile = document.getElementById("pMobile");
+const inputs = {
+  fullName: $("fullName"),
+  institution: $("institution"),
+  rollId: $("rollId"),
+  category: $("category"),
+  mobile: $("mobile"),
+  photoInput: $("photoInput"),
+};
 
-const photoPreview = document.getElementById("photoPreview");
-const photoFallback = document.getElementById("photoFallback");
+const preview = {
+  pFullName: $("pFullName"),
+  pInstitution: $("pInstitution"),
+  pRollId: $("pRollId"),
+  pCategory: $("pCategory"),
+  pMobile: $("pMobile"),
+  photoPreview: $("photoPreview"),
+  photoPlaceholder: $("photoPlaceholder"),
+};
 
-const previewBtn = document.getElementById("previewBtn");
-const downloadBtn = document.getElementById("downloadBtn");
+const admitCardEl = $("admitCard");
+const btnPreview = $("btnPreview");
+const btnDownload = $("btnDownload");
 
 function safeText(v){
-  const s = (v || "").trim();
-  return s.length ? s : "—";
-}
-
-function updateQR(){
-  const qrBox = document.getElementById("qrBox");
-  qrBox.innerHTML = "";
-
-  // Put venue name (or google maps link) inside QR
-  const venueText = "Joypurhat Govt. College";
-
-  new QRCode(qrBox, {
-    text: venueText,
-    width: 98,
-    height: 98
-  });
+  const t = (v || "").trim();
+  return t.length ? t : "—";
 }
 
 function updatePreview(){
-  pName.textContent = safeText(nameEl.value);
-  pInstitution.textContent = safeText(institutionEl.value);
-  pRoll.textContent = safeText(rollEl.value);
-  pCategory.textContent = safeText(categoryEl.value);
-  pMobile.textContent = safeText(mobileEl.value);
-  updateQR();
+  preview.pFullName.textContent = safeText(inputs.fullName.value);
+  preview.pInstitution.textContent = safeText(inputs.institution.value);
+  preview.pRollId.textContent = safeText(inputs.rollId.value);
+  preview.pCategory.textContent = safeText(inputs.category.value);
+  preview.pMobile.textContent = safeText(inputs.mobile.value);
 }
 
-function validateRequired(){
-  if (!nameEl.value.trim()) return "Full Name is required.";
-  if (!institutionEl.value.trim()) return "Institution is required.";
-  if (!rollEl.value.trim()) return "Roll/ID is required.";
-  if (!categoryEl.value.trim()) return "Category is required.";
-  if (!mobileEl.value.trim()) return "Mobile No. is required.";
-  return "";
-}
+["fullName","institution","rollId","category","mobile"].forEach((k)=>{
+  inputs[k].addEventListener("input", updatePreview);
+  inputs[k].addEventListener("change", updatePreview);
+});
 
-photoEl.addEventListener("change", () => {
-  const file = photoEl.files && photoEl.files[0];
-  if (!file) {
-    photoPreview.style.display = "none";
-    photoFallback.style.display = "grid";
-    return;
-  }
+inputs.photoInput.addEventListener("change", (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
 
   const reader = new FileReader();
-  reader.onload = (e) => {
-    photoPreview.src = e.target.result;
-    photoPreview.style.display = "block";
-    photoFallback.style.display = "none";
+  reader.onload = () => {
+    preview.photoPreview.src = reader.result;
+    preview.photoPreview.style.display = "block";
+    preview.photoPlaceholder.style.display = "none";
   };
   reader.readAsDataURL(file);
 });
 
-previewBtn.addEventListener("click", () => {
-  const err = validateRequired();
-  if (err) return alert(err);
+btnPreview.addEventListener("click", ()=>{
   updatePreview();
+  admitCardEl.scrollIntoView({behavior:"smooth", block:"start"});
 });
 
-/**
- * ✅ PDF Export Rules (A4 Landscape)
- * - temporarily apply export-a4 width (wide like A4)
- * - capture with html2canvas
- * - put into jsPDF A4 landscape with tiny margins
- * - fit to page to cover almost full A4
- */
-downloadBtn.addEventListener("click", async () => {
-  const err = validateRequired();
-  if (err) return alert(err);
+function validateRequired(){
+  const required = [
+    {el: inputs.fullName, name:"Full Name"},
+    {el: inputs.institution, name:"Institution"},
+    {el: inputs.rollId, name:"Roll / ID"},
+    {el: inputs.category, name:"Category"},
+    {el: inputs.mobile, name:"Mobile No."},
+  ];
+
+  for(const r of required){
+    const val = (r.el.value || "").trim();
+    if(!val){
+      alert(`Please fill: ${r.name}`);
+      r.el.focus();
+      return false;
+    }
+  }
+  return true;
+}
+
+/* 🔥 Wait until all images inside admit card load */
+async function waitForImages(rootEl){
+  const imgs = [...rootEl.querySelectorAll("img")].filter(img => img.src);
+  await Promise.all(imgs.map(img => {
+    if (img.complete) return Promise.resolve();
+    return new Promise(res => {
+      img.onload = img.onerror = res;
+    });
+  }));
+}
+
+btnDownload.addEventListener("click", async () => {
 
   updatePreview();
+  if (!validateRequired()) return;
 
-  const card = document.getElementById("admitCard");
+  document.body.classList.add("exporting");
 
-  // Apply wide export layout
-  card.classList.add("export-a4");
-  await new Promise(r => setTimeout(r, 80)); // allow CSS apply
-
-  const canvas = await html2canvas(card, {
-    scale: 3,
-    backgroundColor: "#ffffff",
-    useCORS: true
-  });
-
-  // Restore normal
-  card.classList.remove("export-a4");
-
-  const imgData = canvas.toDataURL("image/png");
+  await new Promise(r => setTimeout(r, 300));
+  await waitForImages(admitCardEl);
 
   const { jsPDF } = window.jspdf;
 
-  // A4 landscape: 297 x 210 mm
-  const pdf = new jsPDF("l", "mm", "a4");
-  const pageW = 297;
-  const pageH = 210;
+  const isMobile = window.innerWidth < 600;
+  const scaleValue = isMobile ? 1.5 : 2;
 
-  // Tiny printer-safe margin
-  const margin = 4;
-  const maxW = pageW - margin * 2;
-  const maxH = pageH - margin * 2;
+  try {
+    const canvas = await html2canvas(admitCardEl, {
+      scale: scaleValue,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff"
+    });
 
-  const imgRatio = canvas.width / canvas.height;
+    const imgData = canvas.toDataURL("image/png");
 
-  // Fit-to-page (max coverage)
-  let drawW = maxW;
-  let drawH = drawW / imgRatio;
-  if (drawH > maxH){
-    drawH = maxH;
-    drawW = drawH * imgRatio;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const pageWidth = 210;
+    const pageHeight = 297;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+
+    pdf.save(`JSO_Admit_Card_${(inputs.rollId.value || "JSO26").trim()}.pdf`);
+
+  } catch (err) {
+    console.error(err);
+    alert("PDF generation failed. Please use Chrome browser.");
+  } finally {
+    document.body.classList.remove("exporting");
   }
-
-  const x = (pageW - drawW) / 2;
-  const y = (pageH - drawH) / 2;
-
-  pdf.addImage(imgData, "PNG", x, y, drawW, drawH);
-
-  // Open + Download
-  const blobUrl = pdf.output("bloburl");
-  window.open(blobUrl, "_blank");
-
-  const filenameRoll = rollEl.value.trim().replace(/\s+/g, "_");
-  pdf.save(`JSO_Admit_${filenameRoll}_A4.pdf`);
 });
 
-// Live preview update while typing
-[nameEl, institutionEl, rollEl, categoryEl, mobileEl].forEach(el => {
-  el.addEventListener("input", updatePreview);
-});
-
-updateQR();
+// initialize preview
 updatePreview();
